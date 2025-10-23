@@ -89,28 +89,51 @@ Optional 2FA for admin login
 
 📁 Folder Structure
 secure_shop/
+
 ├── index.php
+
 ├── product.php
+
 ├── cart.php
+
 ├── checkout.php
+
 ├── order_success.php
+
 ├── login.php
+
 ├── signup.php
+
 ├── admin/
+
 │   ├── dashboard.php
+
 │   ├── add_product.php
+
 │   ├── manage_orders.php
+
 │   ├── edit_product.php
+
 │   └── delete_product.php
+
 ├── assets/
+
 │   ├── css/
+
 │   ├── js/
+
 │   └── images/
+
 ├── includes/
+
 │   ├── db.php
+
 │   ├── header.php
+
 │   ├── footer.php
+
 │   ├── functions.php
+
 └── README.md
 
 Phases for building The website
