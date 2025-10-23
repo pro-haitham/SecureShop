@@ -113,22 +113,13 @@ secure_shop/
 │   ├── functions.php
 └── README.md
 
-🧱 Why It Belongs on Your GitHub
+Phases for building The website
 
-✅ Shows secure web development
-✅ Demonstrates database design
-✅ Highlights frontend skills
-✅ Proves you understand auth, sessions, and encryption
-✅ Recruiters love seeing e-commerce projects because they show real-world logic
+ Phase 1: Database + Product Display
 
-If you want, we can start building it in phases, like this:
+ Phase 2: Shopping Cart
 
-🧩 Phase 1: Database + Product Display
+ Phase 3: Checkout + Orders
 
-🛒 Phase 2: Shopping Cart
-
-💳 Phase 3: Checkout + Orders
-
-👤 Phase 4: User Accounts
-
+ Phase 4: User Accounts
 🔐 Phase 5: Security + Admin Panel
