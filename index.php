@@ -1,62 +1,84 @@
-<?php include 'includes/db.php'; ?>
-
 <?php
+// Start the session to manage user login state and cart
 session_start();
+
+// Include the database connection file
 include 'includes/db.php';
 ?>
-
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SecureShop - Home</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-        h1 { text-align: center; }
-        .products { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .product {
-            background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            padding: 15px; width: 220px; text-align: center;
-        }
-        .product img { width: 100%; height: 180px; object-fit: cover; border-radius: 6px; }
-        .product h3 { margin: 10px 0; }
-        .product p { color: #555; }
-        .price { color: #00b894; font-weight: bold; font-size: 18px; }
-        .add-to-cart {
-            background: #00b894; color: white; border: none; padding: 10px;
-            cursor: pointer; border-radius: 5px; transition: 0.3s;
-        }
-        .add-to-cart:hover { background: #019870; }
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-<h1>🛍️ Welcome to SecureShop</h1>
-<div class="products">
+    <header>
+        <nav class="navbar">
+            <a href="index.php" class="logo">🛍️ SecureShop</a>
+            <ul class="nav-links">
+                <li><a href="index.php">Home</a></li>
+                <li><a href="products.php">Products</a></li>
+                <li><a href="cart.php">Cart</a></li>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="account.php">My Account</a></li>
+                    <li><a href="logout.php">Logout</a></li>
+                <?php else: ?>
+                    <li><a href="login.php">Login</a></li>
+                    <li><a href="register.php">Register</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>
 
-<?php
-// Fetch products from database
-$sql = "SELECT * FROM products";
-$result = $conn->query($sql);
+    <main class="container">
+        <h1 class="page-title">Featured Products</h1>
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        echo "
-        <div class='product'>
-            <img src='assets/images/{$row['image']}' alt='{$row['name']}'>
-            <h3>{$row['name']}</h3>
-            <p class='price'>$ {$row['price']}</p>
-            <p>" . substr($row['description'], 0, 50) . "...</p>
-            <button class='add-to-cart'>Add to Cart</button>
+        <div class="products-grid">
+            <?php
+            // Fetch all products from the database
+            $sql = "SELECT id, name, description, price, image FROM products";
+            $result = $conn->query($sql);
+
+            if ($result && $result->num_rows > 0) {
+                // Loop through each product and display it
+                while($row = $result->fetch_assoc()) {
+                    // Use htmlspecialchars to prevent XSS attacks
+                    $product_id = htmlspecialchars($row['id']);
+                    $product_name = htmlspecialchars($row['name']);
+                    $product_description = htmlspecialchars($row['description']);
+                    $product_price = htmlspecialchars($row['price']);
+                    $product_image = htmlspecialchars($row['image']);
+                    
+                    echo "
+                    <div class='product-card'>
+                        <img src='assets/images/{$product_image}' alt='{$product_name}'>
+                        <h3>{$product_name}</h3>
+                        <p class='price'>$ {$product_price}</p>
+                        <p class='description'>" . substr($product_description, 0, 60) . "...</p>
+                        
+                        <form action='add_to_cart.php' method='post'>
+                            <input type='hidden' name='product_id' value='{$product_id}'>
+                            <input type='hidden' name='quantity' value='1'>
+                            <button type='submit' class='add-to-cart-btn'>Add to Cart</button>
+                        </form>
+                    </div>
+                    ";
+                }
+            } else {
+                echo "<p>No products found!</p>";
+            }
+            // Close the database connection
+            $conn->close();
+            ?>
         </div>
-        ";
-    }
-} else {
-    echo "<p>No products found!</p>";
-}
-$conn->close();
-?>
+    </main>
 
-</div>
+    <footer>
+        <p>&copy; <?php echo date("Y"); ?> SecureShop. All Rights Reserved.</p>
+    </footer>
+
 </body>
 </html>
