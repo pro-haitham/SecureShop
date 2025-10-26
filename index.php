@@ -20,14 +20,14 @@ include 'includes/db.php';
             <a href="index.php" class="logo">🛍️ SecureShop</a>
             <ul class="nav-links">
                 <li><a href="index.php">Home</a></li>
-                <li><a href="products.php">Products</a></li>
+                <li><a href="product.php">Products</a></li>
                 <li><a href="cart.php">Cart</a></li>
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <li><a href="account.php">My Account</a></li>
+                    <li><a href="profile.php">My Account</a></li>
                     <li><a href="logout.php">Logout</a></li>
                 <?php else: ?>
                     <li><a href="login.php">Login</a></li>
-                    <li><a href="register.php">Register</a></li>
+                    <li><a href="signup.php">Register</a></li>
                 <?php endif; ?>
             </ul>
         </nav>
