@@ -1,43 +1,62 @@
 <?php
+session_start();
 include 'includes/db.php';
+include 'includes/functions.php';
 
-// Check if ID is passed in URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    echo "Invalid product ID.";
+    header('Location: index.php');
     exit;
 }
+$id = intval($_GET['id']);
 
-$id = intval($_GET['id']); // Sanitize ID
-
-// Fetch product from database
-$stmt = $conn->prepare("SELECT * FROM products WHERE id = ?");
+$stmt = $conn->prepare("SELECT * FROM products WHERE id = ? AND stock > 0");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    echo "Product not found.";
+    // Product not found or out of stock
+    header('Location: index.php?error=not_found');
     exit;
 }
-
-// Fetch product details
 $product = $result->fetch_assoc();
+$stmt->close();
+
+include 'includes/header.php'; // Use new header
 ?>
-
-<!DOCTYPE html>
-<html>
 <head>
-    <title><?php echo htmlspecialchars($product['name']); ?> - Secure Shop</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <title><?php echo htmlspecialchars($product['name']); ?> - SecureShop</title>
 </head>
-<body>
-    <h2><?php echo htmlspecialchars($product['name']); ?></h2>
 
-    <img src="assets/images/<?php echo htmlspecialchars($product['image']); ?>" width="250" alt="Product Image"><br><br>
+<main class="container">
+    <div class="product-page-container">
+        <div class="product-image-column">
+            <img src="assets/images/<?php echo htmlspecialchars($product['image']); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>">
+        </div>
+        <div class="product-details-column">
+            <h1><?php echo htmlspecialchars($product['name']); ?></h1>
+            <p class="product-price-large">$<?php echo number_format($product['price'], 2); ?></p>
+            <p class="product-stock <?php echo $product['stock'] <= 5 ? 'low' : ''; ?>">
+                <?php echo $product['stock']; ?> in stock
+                <?php if ($product['stock'] <= 5) echo "(Order soon!)"; ?>
+            </p>
+            
+            <div class="product-description-full">
+                <?php echo nl2br(htmlspecialchars($product['description'])); ?>
+            </div>
 
-    <p><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
-    <p><strong>Price:</strong> $<?php echo number_format($product['price'], 2); ?></p>
+            <form action="add_to_cart.php" method="POST">
+                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?php echo $product['stock']; ?>" class="quantity-input">
+                
+                <button type="submit" class="add-to-cart-btn large">Add to Cart</button>
+            </form>
+            
+            <a href="index.php" class="back-link">← Back to products</a>
+        </div>
+    </div>
+</main>
 
-    <a href="add_to_cart.php?id=<?php echo $product['id']; ?>">Add to Cart</a>
-</body>
-</html>
+<?php include 'includes/footer.php'; // Use new footer ?>
