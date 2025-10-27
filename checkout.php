@@ -3,7 +3,6 @@ session_start();
 include 'includes/db.php';
 include 'includes/functions.php';
 
-// If cart empty, redirect to cart
 if (empty($_SESSION['cart'])) {
     header("Location: cart.php");
     exit();
@@ -11,9 +10,7 @@ if (empty($_SESSION['cart'])) {
 
 $message = "";
 
-// Show simple checkout form; on submit redirect to payment.php with basic details stored in session
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // sanitize and store in session (so payment page can re-show)
     $_SESSION['checkout'] = [
         'name'    => sanitize_input($_POST['name']),
         'email'   => sanitize_input($_POST['email']),
@@ -23,24 +20,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header("Location: payment.php");
     exit();
 }
+
+include 'includes/header.php'; // Use new header
 ?>
-<!DOCTYPE html>
-<html>
-<head><title>Checkout</title></head>
-<body>
-    <h2>Checkout</h2>
-    <form method="POST" action="">
-        <label>Full Name</label><br>
-        <input type="text" name="name" required value="<?= isset($_SESSION['checkout']['name']) ? htmlspecialchars($_SESSION['checkout']['name']) : '' ?>"><br><br>
+<head>
+    <title>Checkout - SecureShop</title>
+</head>
 
-        <label>Email</label><br>
-        <input type="email" name="email" required value="<?= isset($_SESSION['checkout']['email']) ? htmlspecialchars($_SESSION['checkout']['email']) : '' ?>"><br><br>
+<main class="container">
+    <div class="form-container">
+        <h2>Checkout - Step 1 of 2</h2>
+        <p>Please enter your shipping and contact details.</p>
+        
+        <form method="POST" action="checkout.php">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required value="<?php echo htmlspecialchars($_SESSION['checkout']['name'] ?? ''); ?>">
+            
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required value="<?php echo htmlspecialchars($_SESSION['checkout']['email'] ?? ''); ?>">
 
-        <label>Address</label><br>
-        <textarea name="address" required><?= isset($_SESSION['checkout']['address']) ? htmlspecialchars($_SESSION['checkout']['address']) : '' ?></textarea><br><br>
+            <label for="address">Full Address</label>
+            <textarea id="address" name="address" required><?php echo htmlspecialchars($_SESSION['checkout']['address'] ?? ''); ?></textarea>
 
-        <button type="submit">Continue to Payment</button>
-    </form>
-    <p><a href="cart.php">← Back to Cart</a></p>
-</body>
-</html>
+            <button type="submit" class="btn-submit">Continue to Payment</button>
+        </form>
+        <p class="form-switch"><a href="cart.php">← Back to Cart</a></p>
+    </div>
+</main>
+
+<?php include 'includes/footer.php'; // Use new footer ?>
