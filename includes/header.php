@@ -1,64 +1,34 @@
 <?php
-include_once 'includes/db.php';
-include_once 'includes/functions.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST['quantity'])) {
-    
-    $product_id = (int)sanitize_input($_POST['product_id']);
-    $quantity = (int)sanitize_input($_POST['quantity']);
-    
-    // 1. Basic validation
-    if ($quantity <= 0) {
-        redirect('/index.php?error=Quantity must be positive');
-    }
-
-    // 2. Fetch product details and check stock
-    $stmt = $link->prepare("SELECT id, name, price, stock FROM products WHERE id = ?");
-    if (!$stmt) {
-        error_log("Prepare failed: " . $link->error);
-        redirect('/index.php?error=System error on product fetch');
-    }
-    
-    $stmt->bind_param("i", $product_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $product = $result->fetch_assoc();
-    $stmt->close();
-
-    if (!$product) {
-        redirect('/index.php?error=Product not found');
-    }
-
-    // 3. Check stock availability (simple check)
-    if ($product['stock'] < $quantity) {
-        redirect('/product.php?id=' . $product_id . '&error=Insufficient stock. Only ' . $product['stock'] . ' left.');
-    }
-
-    // 4. Update or add item to session cart
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    if (isset($_SESSION['cart'][$product_id])) {
-        // Check if adding more exceeds stock
-        $new_quantity = $_SESSION['cart'][$product_id]['quantity'] + $quantity;
-        if ($new_quantity > $product['stock']) {
-             redirect('/product.php?id=' . $product_id . '&error=Cannot add. Total exceeds stock.');
-        }
-        $_SESSION['cart'][$product_id]['quantity'] = $new_quantity;
-    } else {
-        $_SESSION['cart'][$product_id] = [
-            'id' => $product['id'],
-            'name' => $product['name'],
-            'price' => (float)$product['price'],
-            'quantity' => $quantity,
-            'image' => '/assets/images/' . ($product['image'] ?? 'placeholder.jpg') // Placeholder image logic
-        ];
-    }
-
-    redirect('/cart.php?success=Product added to cart!');
-
-} else {
-    redirect('/index.php');
-}
+// This header is included on all pages.
+// session_start() is called on individual pages (like index.php) as needed.
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureShop</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <header>
+        <nav class="navbar">
+            <a href="index.php" class="logo">🛍️ SecureShop</a>
+                <ul class="nav-links">
+    <li><a href="index.php">Home</a></li>
+    <li><a href="index.php#categories">Categories</a></li> 
+    <li><a href="cart.php">Cart</a></li>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li><a href="profile.php">My Account</a></li>
+                    <li><a href="logout.php">Logout</a></li>
+                <?php else: ?>
+                    <li><a href="login.php">Login</a></li>
+                    <li><a href="signup.php">Register</a></li>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                    <li><a href="admin/dashboard.php" style="color: #00b894; font-weight: bold;">Admin</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+    </header>
