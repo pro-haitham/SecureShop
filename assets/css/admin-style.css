@@ -23,19 +23,38 @@ body {
     color: #2c3e50;
 }
 
-.admin-header nav {
+/* --- FIX: Renamed to admin-nav --- */
+.admin-nav {
     display: flex;
     gap: 1.5rem;
 }
 
-.admin-header nav a {
+.admin-nav a {
     text-decoration: none;
     color: #555;
     font-weight: 500;
+    padding-bottom: 4px; /* Add padding for border */
+    border-bottom: 2px solid transparent; /* Placeholder border */
+    transition: all 0.3s ease;
 }
-.admin-header nav a:hover {
+.admin-nav a:hover {
     color: #00b894;
 }
+
+/* --- IMPROVEMENT: Active admin page link style --- */
+.admin-nav a.active {
+    color: #00b894;
+    font-weight: bold;
+    border-bottom-color: #00b894;
+}
+
+.admin-nav a.logout {
+    color: #c51212;
+}
+.admin-nav a.logout:hover {
+    color: #a00;
+}
+
 
 .admin-container {
     max-width: 1400px;
@@ -57,6 +76,10 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+.stat-card.revenue p { color: #00b894; }
+.stat-card.orders p { color: #3498db; }
+.stat-card.customers p { color: #e67e22; }
+
 
 .stat-card h3 {
     margin-top: 0;
@@ -68,7 +91,6 @@ body {
 .stat-card p {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #00b894;
     margin: 0.5rem 0 0 0;
 }
 
@@ -78,6 +100,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     padding: 2rem;
+    overflow-x: auto; /* For responsive tables */
 }
 
 .data-tables h2 {
@@ -95,10 +118,27 @@ body {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid #f0f2f5;
+    white-space: nowrap; /* Prevents ugly wrapping */
 }
 
 .data-tables th {
     background-color: #f9f9f9;
+}
+
+.data-tables .no-data {
+    text-align: center;
+    color: #777;
+    padding: 2rem;
+}
+
+/* --- IMPROVEMENT: Order ID link style --- */
+.data-table td a {
+    color: #00b894;
+    font-weight: bold;
+    text-decoration: none;
+}
+.data-table td a:hover {
+    text-decoration: underline;
 }
 
 .btn-edit {
@@ -121,14 +161,44 @@ ADMIN CATEGORY PAGE STYLES
 ========================================
 */
 
-/* Grid layout for form + list */
 .admin-grid {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 2rem;
 }
 
-/* Form styles */
+/* Responsive grid for smaller screens */
+@media (max-width: 900px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-container-admin {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.form-container-admin h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 1rem;
+}
+
+.form-container-admin label {
+    display: block;
+    margin: 1.2rem 0 0.5rem 0;
+    font-weight: 500;
+}
+
+.form-container-admin input[type="text"],
+.form-container-admin input[type="number"],
+.form-container-admin input[type="file"],
+.form-container-admin textarea,
 .form-container-admin select {
     width: 100%;
     padding: 0.8rem 1rem;
@@ -138,6 +208,29 @@ ADMIN CATEGORY PAGE STYLES
     font-size: 1rem;
     font-family: inherit;
     background-color: #fff;
+}
+
+.form-container-admin textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.btn-submit {
+    background: #00b894;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    margin-top: 2rem;
+    text-transform: uppercase;
+}
+.btn-submit:hover {
+    background: #019870;
 }
 
 .btn-cancel {
@@ -159,7 +252,6 @@ ADMIN CATEGORY PAGE STYLES
     background: #555;
 }
 
-/* Table action buttons */
 .data-table .actions {
     display: flex;
     gap: 0.5rem;
@@ -175,4 +267,90 @@ ADMIN CATEGORY PAGE STYLES
 }
 .btn-delete:hover {
     background: #a00;
+}
+
+/*
+========================================
+NEW STYLES (Appended)
+========================================
+*/
+
+/* --- Admin Footer --- */
+.admin-footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 2rem;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* --- Message/Error Boxes --- */
+.message {
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+.message.error {
+    background: #ffebe9;
+    color: #c51212;
+    border-color: #c51212;
+}
+.message.success {
+    background: #e6f7ec;
+    color: #00b894;
+    border-color: #00b894;
+}
+
+/* --- Order Details Page --- */
+.order-details-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+    .order-details-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.order-items-table {
+    grid-column: 1 / -1; /* Span full width */
+}
+
+.customer-details-card,
+.order-summary-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+}
+
+.customer-details-card h3,
+.order-summary-card h3 {
+    margin-top: 0;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 0.75rem;
+}
+
+.customer-details-card p,
+.order-summary-card p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.customer-details-card strong,
+.order-summary-card strong {
+    color: #333;
+}
+
+.order-summary-card .total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00b894;
+    margin-top: 1rem;
 }

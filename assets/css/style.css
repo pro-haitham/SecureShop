@@ -32,6 +32,10 @@ body {
     gap: 1.5rem;
 }
 
+.navbar .nav-links li {
+    position: relative; /* Needed for the cart bubble */
+}
+
 .navbar .nav-links a {
     text-decoration: none;
     color: #555;
@@ -42,6 +46,32 @@ body {
 .navbar .nav-links a:hover {
     color: #00b894;
 }
+
+/* --- IMPROVEMENT: Active page link style --- */
+.navbar .nav-links a.active {
+    color: #00b894;
+    font-weight: bold;
+}
+
+/* --- IMPROVEMENT: AJAX Cart count bubble --- */
+#cart-count-bubble {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: #c51212;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    line-height: 1;
+    display: none; /* Hidden by default, JS will show it */
+}
+
+#cart-count-bubble.visible {
+    display: block;
+}
+
 
 /* Main Content and Product Grid */
 .container {
@@ -70,6 +100,8 @@ body {
     text-align: center;
     padding: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex; /* Added for better layout */
+    flex-direction: column; /* Added for better layout */
 }
 
 .product-card:hover {
@@ -103,6 +135,7 @@ body {
     color: #666;
     height: 40px; /* Ensures consistent card height */
     margin-bottom: 15px;
+    flex-grow: 1; /* Pushes button to bottom */
 }
 
 .add-to-cart-btn {
@@ -142,7 +175,6 @@ General Utility Styles
 ----------------------------------------
 */
 
-/* A general-purpose button for the hero */
 .btn {
     text-decoration: none;
     padding: 12px 24px;
@@ -153,21 +185,17 @@ General Utility Styles
 }
 
 .btn-primary {
-    /* Uses your main theme color */
     background-color: #00b894; 
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    /* Uses your main hover color */
     background-color: #019870; 
     transform: translateY(-2px);
 }
 
-/* A general title for new sections */
 .section-title {
     text-align: center;
-    /* Uses your existing title color */
     color: #2c3e50; 
     font-size: 2rem;
     margin-bottom: 2rem;
@@ -178,9 +206,6 @@ General Utility Styles
 ----------------------------------------
 */
 .hero {
-    /* NOTE: You'll need to add a 'hero-banner.jpg' to your 'assets/images/' folder.
-      I've added a dark overlay so white text is readable.
-    */
     background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/hero-banner.jpg');
     background-size: cover;
     background-position: center;
@@ -204,37 +229,30 @@ General Utility Styles
 ----------------------------------------
 */
 .category-highlights {
-    /* Adds space between this and the product grid */
     margin-bottom: 3rem; 
 }
 
 .category-grid {
     display: grid;
-    /* Creates a responsive grid */
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
 }
 
 .category-card {
-    /* Re-uses your existing product card styling */
     background: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     text-align: center;
-    overflow: hidden; /* Ensures image corners are rounded */
+    overflow: hidden; 
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .category-card:hover {
-    /* Re-uses your existing product card hover effect */
     transform: translateY(-5px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
 .category-card img {
-    /* NOTE: You'll need to add category images like 'cat-electronics.jpg'
-      to your 'assets/images/' folder.
-    */
     width: 100%;
     height: 180px;
     object-fit: cover;
@@ -251,7 +269,6 @@ General Utility Styles
 ----------------------------------------
 */
 .testimonials {
-    /* A white background to separate it from the main content and footer */
     background-color: #ffffff;
     padding: 4rem 0;
     margin-top: 3rem;
@@ -264,24 +281,22 @@ General Utility Styles
 }
 
 .testimonial-card {
-    /* Uses your page background color for contrast */
     background: #f4f7f6; 
     border-radius: 10px;
     padding: 2rem;
-    /* Adds your theme color as a side accent */
     border-left: 5px solid #00b894; 
 }
 
 .testimonial-card p {
     font-style: italic;
-    color: #555; /* Your navbar link color */
+    color: #555;
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
 }
 
 .testimonial-card h4 {
     margin: 0;
-    color: #2c3e50; /* Your title color */
+    color: #2c3e50;
     text-align: right;
 }
 
@@ -296,7 +311,7 @@ NEW FEATURE STYLES (Appended)
 ----------------------------------------
 */
 .offer-banner {
-    background-color: #2c3e50; /* Matches your footer */
+    background-color: #2c3e50;
     color: #ffffff;
     padding: 3rem 2rem;
     text-align: center;
@@ -305,7 +320,7 @@ NEW FEATURE STYLES (Appended)
 .offer-banner h3 {
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
-    color: #00b894; /* Your theme color */
+    color: #00b894;
 }
 
 .offer-banner p {
@@ -333,24 +348,23 @@ NEW FEATURE STYLES (Appended)
 ----------------------------------------
 */
 .toast {
-    visibility: hidden; /* Hidden by default */
+    visibility: hidden; 
     min-width: 250px;
-    background-color: #333; /* Dark background */
+    background-color: #333; 
     color: #fff;
     text-align: center;
     border-radius: 5px;
     padding: 16px;
-    position: fixed; /* Stays in place */
+    position: fixed; 
     z-index: 100;
     left: 50%;
-    transform: translateX(-50%); /* Center horizontally */
-    bottom: 30px; /* 30px from the bottom */
+    transform: translateX(-50%); 
+    bottom: 30px; 
     font-size: 1rem;
     opacity: 0;
     transition: opacity 0.5s, visibility 0.5s;
 }
 
-/* This class is added by JS to show the toast */
 .toast.show {
     visibility: visible;
     opacity: 1;
@@ -358,74 +372,300 @@ NEW FEATURE STYLES (Appended)
 
 /*
 ========================================
-NEW ADMIN STYLES (Appended)
+NEW PAGE & FORM STYLES (Appended)
 ========================================
 */
 
 /* ----------------------------------------
-Admin Forms (Add/Edit Product)
+Forms (Login, Signup, Checkout, Payment)
 ----------------------------------------
 */
-.form-container-admin {
-    max-width: 800px;
-    margin: 0 auto;
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
     padding: 2.5rem;
     background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-.form-container-admin h2 {
+.form-container h2 {
+    text-align: center;
+    color: #2c3e50;
     margin-top: 0;
-    border-bottom: 2px solid #f0f2f5;
-    padding-bottom: 1rem;
 }
 
-.form-container-admin label {
+.form-container label {
     display: block;
-    margin: 1.2rem 0 0.5rem 0;
+    margin-bottom: 0.5rem;
     font-weight: 500;
+    color: #555;
 }
 
-.form-container-admin input[type="text"],
-.form-container-admin input[type="number"],
-.form-container-admin input[type="file"],
-.form-container-admin textarea {
+.form-container input[type="text"],
+.form-container input[type="email"],
+.form-container input[type="password"],
+.form-container input[type="number"],
+.form-container textarea {
     width: 100%;
     padding: 0.8rem 1rem;
+    margin-bottom: 1.2rem;
     border: 1px solid #ddd;
     border-radius: 5px;
-    box-sizing: border-box; /* Important for padding */
+    box-sizing: border-box;
     font-size: 1rem;
-    font-family: inherit;
 }
 
-.form-container-admin textarea {
-    min-height: 150px;
+.form-container textarea {
+    min-height: 120px;
     resize: vertical;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+.form-row > div {
+    flex: 1;
 }
 
 .btn-submit {
     background: #00b894;
     color: white;
     border: none;
-    padding: 1rem 2rem;
+    padding: 1rem 20px;
     cursor: pointer;
     border-radius: 5px;
     font-size: 1rem;
     font-weight: bold;
     transition: background-color 0.3s ease;
     width: 100%;
-    margin-top: 2rem;
     text-transform: uppercase;
 }
 .btn-submit:hover {
     background: #019870;
 }
 
-/* For full-width tables */
-.data-table.full-width {
-    max-width: none;
+.form-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #666;
+}
+.form-switch a {
+    color: #00b894;
+    font-weight: 500;
+    text-decoration: none;
+}
+.form-switch a:hover {
+    text-decoration: underline;
+}
+
+.message {
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+.message.error {
+    background: #ffebe9;
+    color: #c51212;
+    border: 1px solid #c51212;
+}
+.message.success {
+    background: #e6f7ec;
+    color: #00b894;
+    border: 1px solid #00b894;
+}
+
+.order-summary {
+    padding: 1rem;
+    background: #f4f7f6;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #00b894;
+}
+
+/* ----------------------------------------
+Single Product Page
+----------------------------------------
+*/
+.product-page-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.product-image-column img {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.product-price-large {
+    color: #00b894;
+    font-weight: bold;
+    font-size: 2.5rem;
+    margin: 0.5rem 0;
+}
+
+.product-stock {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+}
+.product-stock.low {
+    color: #c51212;
+    font-weight: bold;
+}
+
+.product-description-full {
+    margin: 1.5rem 0;
+    line-height: 1.7;
+    color: #555;
+}
+
+/* --- FIX: Updated product page form --- */
+.product-page-form {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.quantity-input {
+    width: 70px;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.add-to-cart-btn.large {
+    width: auto;
+    flex-grow: 1;
+    padding: 0.85rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 2rem;
+    color: #555;
+    text-decoration: none;
+}
+.back-link:hover {
+    color: #00b894;
+}
+
+/* ----------------------------------------
+Profile Page
+----------------------------------------
+*/
+.profile-container {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.profile-container h2 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.order-history-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+}
+
+.order-history-table th, .order-history-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.order-history-table th {
+    background-color: #f9f9f9;
+}
+
+/* --- FIX: Added styles for new order links --- */
+.order-history-table td a {
+    color: #00b894;
+    font-weight: bold;
+    text-decoration: none;
+}
+.order-history-table td a:hover {
+    text-decoration: underline;
+}
+
+.btn-logout {
+    display: inline-block;
+    margin-top: 2rem;
+    background: #c51212;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s;
+}
+.btn-logout:hover {
+    background: #a00;
+}
+
+/* ----------------------------------------
+Order Success Page
+----------------------------------------
+*/
+.success-container {
+    text-align: center;
+    background: #ffffff;
+    padding: 3rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.success-container h2 {
+    color: #00b894;
+    margin-top: 0;
+}
+
+.success-details {
+    background: #f4f7f6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: left;
+    display: inline-block;
+}
+.success-details p {
+    margin: 0.7rem 0;
+}
+
+.success-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-secondary {
+    background-color: #f4f7f6; 
+    color: #00b894;
+    border: 1px solid #00b894;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.btn-secondary:hover {
+    background-color: #00b894;
+    color: #ffffff;
 }
 
 /*
@@ -434,7 +674,6 @@ NEW CATEGORY PAGE STYLES
 ========================================
 */
 
-/* Header for the category.php page */
 .category-header {
     padding: 2rem;
     background: #ffffff;
@@ -453,13 +692,11 @@ NEW CATEGORY PAGE STYLES
     margin-bottom: 0;
 }
 
-/* Makes the whole category card clickable */
 .category-card-link {
     text-decoration: none;
     color: inherit;
 }
 
-/* Add a new link to product cards */
 .product-card .view-details-link {
     display: block;
     margin-top: 10px;
@@ -468,5 +705,142 @@ NEW CATEGORY PAGE STYLES
     text-decoration: none;
 }
 .product-card .view-details-link:hover {
+    color: #00b894;
+}
+/*
+========================================
+NEW CART PAGE STYLES
+========================================
+*/
+.cart-container {
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.cart-table th, .cart-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.cart-table th {
+    background-color: #f9f9f9;
+}
+
+.cart-quantity {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-quantity {
+    background: #f4f7f6;
+    border: 1px solid #ddd;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+}
+.btn-quantity:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-remove {
+    background: none;
+    border: none;
+    color: #c51212;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: underline;
+}
+
+.cart-summary {
+    text-align: right;
+}
+.cart-total {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.product-card .product-link-wrapper {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/*
+========================================
+NEW VIEW ORDER PAGE STYLES
+========================================
+*/
+.order-details-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.order-items-card,
+.order-summary-card {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.order-items-card h3,
+.order-summary-card h3 {
+    margin-top: 0;
+    color: #2c3e50;
+    border-bottom: 2px solid #f4f7f6;
+    padding-bottom: 0.75rem;
+}
+
+.order-items-card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-items-card th, .order-items-card td {
+    padding: 1rem 0;
+    text-align: left;
+    border-bottom: 1px solid #f4f7f6;
+}
+
+.order-items-card th {
+    color: #555;
+}
+
+.order-summary-card p {
+    margin: 0.75rem 0;
+    line-height: 1.7;
+    color: #333;
+}
+.order-summary-card .total {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00b894;
+    margin-top: 1.5rem;
+}
+
+.back-to-profile {
+    display: inline-block;
+    margin-top: 1.5rem;
+    color: #555;
+    text-decoration: none;
+}
+.back-to-profile:hover {
     color: #00b894;
 }
