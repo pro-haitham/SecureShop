@@ -1,74 +1,66 @@
 <?php
 session_start();
 include_once 'includes/db.php';
-include_once 'includes/functions.php';
 
-// Check for POST data
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['product_id'], $_POST['quantity'])) {
-    
-    $product_id = (int)$_POST['product_id'];
-    $quantity = (int)$_POST['quantity'];
-    
-    // 1. Basic validation
-    if ($quantity <= 0) {
-        // Redirect with error
-        header('Location: index.php?error=invalid_quantity');
-        exit();
-    }
+// Set content type to JSON
+header('Content-Type: application/json');
 
-    // 2. Fetch product details and check stock
-    // BUG FIX: Changed $link to $conn
-    $stmt = $conn->prepare("SELECT id, name, price, stock FROM products WHERE id = ?");
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        header('Location: index.php?error=db_error');
-        exit();
-    }
-    
-    $stmt->bind_param("i", $product_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $product = $result->fetch_assoc();
-    $stmt->close();
+// Get data from JSON payload
+$data = json_decode(file_get_contents('php://input'), true);
 
-    if (!$product) {
-        header('Location: index.php?error=not_found');
-        exit();
-    }
-
-    // 3. Check stock
-    if ($product['stock'] < $quantity) {
-        header('Location: product.php?id=' . $product_id . '&error=stock_exceeded');
-        exit();
-    }
-
-    // 4. Update or add item to session cart
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    if (isset($_SESSION['cart'][$product_id])) {
-        // Check if adding more exceeds stock
-        $new_quantity = $_SESSION['cart'][$product_id]['quantity'] + $quantity;
-        if ($new_quantity > $product['stock']) {
-             header('Location: product.php?id=' . $product_id . '&error=stock_exceeded');
-             exit();
-        }
-        $_SESSION['cart'][$product_id]['quantity'] = $new_quantity;
-    } else {
-        // Store minimal info. We fetch details in the cart.
-        $_SESSION['cart'][$product_id] = [
-            'quantity' => $quantity
-        ];
-    }
-
-    // NEW FEATURE: Redirect to index with a success flag for the toast
-    header('Location: index.php?added=1');
-    exit();
-
-} else {
-    // No POST data, just go home
-    header('Location: index.php');
-    exit();
+if (!$data || !isset($data['product_id'], $data['quantity'])) {
+    echo json_encode(['success' => false, 'message' => 'Invalid input.']);
+    exit;
 }
+
+$product_id = (int)$data['product_id'];
+$quantity = (int)$data['quantity'];
+
+if ($quantity <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid quantity.']);
+    exit;
+}
+
+// 2. Fetch product details and check stock
+$stmt = $conn->prepare("SELECT stock FROM products WHERE id = ?");
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$product = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+if (!$product) {
+    echo json_encode(['success' => false, 'message' => 'Product not found.']);
+    exit;
+}
+
+// 4. Update or add item to session cart
+if (!isset($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+
+$new_quantity = $quantity;
+if (isset($_SESSION['cart'][$product_id])) {
+    $new_quantity = $_SESSION['cart'][$product_id]['quantity'] + $quantity;
+}
+
+// 3. Check stock
+if ($product['stock'] < $new_quantity) {
+    echo json_encode(['success' => false, 'message' => 'Not enough stock!']);
+    exit;
+}
+
+$_SESSION['cart'][$product_id] = ['quantity' => $new_quantity];
+
+// Calculate new cart count
+$cart_count = 0;
+foreach ($_SESSION['cart'] as $item) {
+    $cart_count += $item['quantity'];
+}
+
+echo json_encode([
+    'success' => true, 
+    'message' => 'Product added to cart!',
+    'cart_count' => $cart_count
+]);
+exit;
 ?>
