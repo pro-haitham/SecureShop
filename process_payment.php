@@ -9,95 +9,116 @@ if (empty($_SESSION['cart']) || empty($_SESSION['checkout'])) {
 }
 
 // Minimal validation of demo card inputs
-$card = trim($_POST['card_number'] ?? '');
-$expiry = trim($_POST['expiry'] ?? '');
-$cvc = trim($_POST['cvc'] ?? '');
-
-// Don't store card data. This is a demo only.
-if (empty($card) || empty($expiry) || empty($cvc)) {
+if (empty($_POST['card_number']) || empty($_POST['expiry']) || empty($_POST['cvc'])) {
+    $_SESSION['payment_error'] = "Please fill in all payment fields.";
     header("Location: payment.php");
     exit();
 }
 
 // Simulate payment: 90% success, 10% fail
-$rand = rand(1, 100);
-$success = $rand <= 90;
-
-if (!$success) {
-    // Payment failed simulation
+if (rand(1, 100) > 90) {
     $_SESSION['payment_error'] = "Payment failed (simulated). Please try again.";
     header("Location: payment.php");
     exit();
 }
 
-// Payment "succeeded" -> proceed to insert order & items
-
-// Calculate total and ensure product prices are current
+// --- IMPROVEMENT: Transaction and efficient data processing ---
 $total = 0.0;
-$items_details = []; // array of [product_id, qty, price]
+$items_details = [];
+$cart_ids = array_keys($_SESSION['cart']);
 
-foreach ($_SESSION['cart'] as $pid => $item) {
-    $stmt = $conn->prepare("SELECT price FROM products WHERE id = ?");
-    $stmt->bind_param("i", $pid);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    if ($p = $res->fetch_assoc()) {
-        $price = (float)$p['price'];
-        $qty = (int)$item['quantity'];
-        $total += $price * $qty;
-        $items_details[] = ['id' => $pid, 'qty' => $qty, 'price' => $price];
-    } else {
-        // product not found — skip or handle error
-    }
-    $stmt->close();
+// 1. Get all product data in ONE query
+$placeholders = implode(',', array_fill(0, count($cart_ids), '?'));
+$types = str_repeat('i', count($cart_ids));
+$stmt_products = $conn->prepare("SELECT id, price, stock FROM products WHERE id IN ($placeholders)");
+$stmt_products->bind_param($types, ...$cart_ids);
+$stmt_products->execute();
+$products_data = $stmt_products->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt_products->close();
+
+// Map for easy lookup
+$products_map = [];
+foreach ($products_data as $p) {
+    $products_map[$p['id']] = $p;
 }
 
-// Use checkout info from session
-$name = $_SESSION['checkout']['name'];
-$email = $_SESSION['checkout']['email'];
-$address = $_SESSION['checkout']['address'];
+// 2. Final validation and total calculation
+foreach ($_SESSION['cart'] as $pid => $item) {
+    $qty = (int)$item['quantity'];
+    
+    // Check if product still exists
+    if (!isset($products_map[$pid])) {
+        $_SESSION['payment_error'] = "An item in your cart is no longer available.";
+        header("Location: payment.php");
+        exit();
+    }
+    
+    $product = $products_map[$pid];
+    
+    // --- CRITICAL: Final stock check ---
+    if ($product['stock'] < $qty) {
+        $_SESSION['payment_error'] = "Stock level for " . htmlspecialchars($product['name']) . " changed. Only " . $product['stock'] . " left.";
+        header("Location: payment.php");
+        exit();
+    }
+    
+    $price = (float)$product['price'];
+    $total += $price * $qty;
+    $items_details[] = ['id' => $pid, 'qty' => $qty, 'price' => $price];
+}
 
-// If user logged in, associate user_id
-$user_id = $_SESSION['user_id'] ?? null;
+// 3. Start database transaction
+$conn->begin_transaction();
 
-// Insert into orders table
-$stmt = $conn->prepare("INSERT INTO orders (user_id, customer_name, email, address, total, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-$stmt->bind_param("isssd", $user_id, $name, $email, $address, $total);
+try {
+    // 4. Insert into orders table
+    $name = $_SESSION['checkout']['name'];
+    $email = $_SESSION['checkout']['email'];
+    $address = $_SESSION['checkout']['address'];
+    $user_id = $_SESSION['user_id'] ?? null;
 
-if (!$stmt->execute()) {
-    // handle DB error
-    $_SESSION['payment_error'] = "Failed to create order: " . $conn->error;
+    $stmt_order = $conn->prepare("INSERT INTO orders (user_id, customer_name, email, address, total, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+    $stmt_order->bind_param("isssd", $user_id, $name, $email, $address, $total);
+    $stmt_order->execute();
+    $order_id = $stmt_order->insert_id;
+    $stmt_order->close();
+
+    // 5. Insert order items
+    $stmt_item = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
+    $stmt_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
+
+    foreach ($items_details as $it) {
+        // Insert item
+        $stmt_item->bind_param("iiid", $order_id, $it['id'], $it['qty'], $it['price']);
+        $stmt_item->execute();
+        
+        // Update stock
+        $stmt_stock->bind_param("ii", $it['qty'], $it['id']);
+        $stmt_stock->execute();
+    }
+    $stmt_item->close();
+    $stmt_stock->close();
+
+    // 6. If all queries succeeded, commit the transaction
+    $conn->commit();
+
+} catch (mysqli_sql_exception $exception) {
+    // 7. If any query failed, roll back all changes
+    $conn->rollback();
+    
+    error_log("Order processing failed: " . $exception->getMessage());
+    $_SESSION['payment_error'] = "A database error occurred. Your order was not placed. Please try again.";
     header("Location: payment.php");
     exit();
 }
+// --- End Transaction ---
 
-$order_id = $stmt->insert_id;
-$stmt->close();
-
-// Insert order items
-$stmt_item = $conn->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)");
-foreach ($items_details as $it) {
-    $stmt_item->bind_param("iiid", $order_id, $it['id'], $it['qty'], $it['price']);
-    $stmt_item->execute();
-}
-$stmt_item->close();
-
-// (Optional) Decrease product stock
-$update_stock = $conn->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
-foreach ($items_details as $it) {
-    $u = $conn->prepare("UPDATE products SET stock = GREATEST(stock - ?, 0) WHERE id = ?");
-    $u->bind_param("ii", $it['qty'], $it['id']);
-    $u->execute();
-    $u->close();
-}
-
-// Clear cart & checkout session
+// 8. Clear cart & checkout session
 $_SESSION['cart'] = [];
 unset($_SESSION['checkout']);
 
-// Generate fake tracking number
+// 9. Redirect to success
 $tracking = 'TRK' . strtoupper(substr(md5(uniqid((string)rand(), true)), 0, 10));
-
-// Redirect to success page with tracking (do not expose sensitive data in URL)
 header("Location: order_success.php?tracking={$tracking}&order_id={$order_id}");
 exit();
+?>

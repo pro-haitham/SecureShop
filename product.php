@@ -15,19 +15,16 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    // Product not found or out of stock
     header('Location: index.php?error=not_found');
     exit;
 }
 $product = $result->fetch_assoc();
 $stmt->close();
 
+// IMPROVEMENT: Set the dynamic page title
+$page_title = htmlspecialchars($product['name']) . " - SecureShop";
 include 'includes/header.php'; // Use new header
 ?>
-<head>
-    <title><?php echo htmlspecialchars($product['name']); ?> - SecureShop</title>
-</head>
-
 <main class="container">
     <div class="product-page-container">
         <div class="product-image-column">
@@ -45,13 +42,11 @@ include 'includes/header.php'; // Use new header
                 <?php echo nl2br(htmlspecialchars($product['description'])); ?>
             </div>
 
-            <form action="add_to_cart.php" method="POST">
-                <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                
+            <form class="ajax-add-to-cart-form product-page-form">
                 <label for="quantity">Quantity:</label>
                 <input type="number" name="quantity" id="quantity" value="1" min="1" max="<?php echo $product['stock']; ?>" class="quantity-input">
                 
-                <button type="submit" class="add-to-cart-btn large">Add to Cart</button>
+                <button type="submit" class="add-to-cart-btn large" data-id="<?php echo $product['id']; ?>">Add to Cart</button>
             </form>
             
             <a href="index.php" class="back-link">← Back to products</a>

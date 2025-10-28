@@ -25,12 +25,10 @@ if (!$order) {
     exit();
 }
 
+// IMPROVEMENT: Set the dynamic page title
+$page_title = "Order Success! - SecureShop";
 include 'includes/header.php'; // Use new header
 ?>
-<head>
-    <title>Order Success! - SecureShop</title>
-</head>
-
 <main class="container">
     <div class="success-container">
         <h2>✅ Order Placed Successfully!</h2>
@@ -45,7 +43,11 @@ include 'includes/header.php'; // Use new header
 
         <div class="success-actions">
             <a href="index.php" class="btn btn-primary">Continue Shopping</a>
-            <a href="profile.php" class="btn-secondary">View My Orders</a>
+            
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="profile.php" class="btn-secondary">View My Orders</a>
+            <?php endif; ?>
+            
         </div>
     </div>
 </main>
