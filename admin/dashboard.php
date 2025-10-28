@@ -2,30 +2,31 @@
 session_start();
 include '../includes/db.php'; // Correct path to DB connection
 
-// --- Access Control: Only admins can view this page ---
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: ../login.php');
-    exit;
-}
+// // --- Access Control: Only admins can view this page ---
+// if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+//     header('Location: ../login.php');
+//     exit;
+// }
+
+// Set the current page for active nav link
+$current_page = 'dashboard';
 
 // --- Fetch Dashboard Stats Safely ---
 
-// 1️⃣ Total Revenue
+// 1. Total Revenue
 $res_rev = $conn->query("SELECT SUM(total) AS total_revenue FROM orders");
 $revenue = floatval($res_rev->fetch_assoc()['total_revenue'] ?? 0);
 
-// 2️⃣ Total Orders
+// 2. Total Orders
 $res_ord = $conn->query("SELECT COUNT(*) AS total_orders FROM orders");
 $orders_count = intval($res_ord->fetch_assoc()['total_orders'] ?? 0);
 
-// 3️⃣ Total Customers
+// 3. Total Customers
 $res_cust = $conn->query("SELECT COUNT(*) AS total_customers FROM users WHERE role = 'user'");
 $customers = intval($res_cust->fetch_assoc()['total_customers'] ?? 0);
 
-// 4️⃣ Low Stock Items (≤ 5)
+// 4. Low Stock Items (≤ 5)
 $low_stock = $conn->query("SELECT id, name, stock FROM products WHERE stock <= 5 AND stock > 0 ORDER BY stock ASC");
-
-// Optionally: auto-close DB connection at end of script for cleanliness
 ?>
 
 <!DOCTYPE html>
@@ -41,10 +42,10 @@ $low_stock = $conn->query("SELECT id, name, stock FROM products WHERE stock <= 5
 <header class="admin-header">
     <h1>🛍️ Admin Dashboard</h1>
     <nav class="admin-nav">
-        <a href="dashboard.php" class="active">Dashboard</a>
-        <a href="manage_categories.php">Categories</a>
-        <a href="add_product.php">Add Product</a>
-        <a href="manage_orders.php">Manage Orders</a>
+        <a href="dashboard.php" class="<?php echo ($current_page === 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
+        <a href="manage_categories.php" class="<?php echo ($current_page === 'categories') ? 'active' : ''; ?>">Categories</a>
+        <a href="add_product.php" class="<?php echo ($current_page === 'add_product') ? 'active' : ''; ?>">Add Product</a>
+        <a href="manage_orders.php" class="<?php echo ($current_page === 'orders') ? 'active' : ''; ?>">Manage Orders</a>
         <a href="../index.php" target="_blank">View Shop</a>
         <a href="../logout.php" class="logout">Logout</a>
     </nav>
@@ -52,25 +53,23 @@ $low_stock = $conn->query("SELECT id, name, stock FROM products WHERE stock <= 5
 
 <main class="admin-container">
 
-    <!-- Dashboard Statistics -->
     <section class="stat-cards">
         <div class="stat-card revenue">
             <h3>Total Revenue</h3>
-            <p>$<?= number_format($revenue, 2) ?></p>
+            <p>$<?php echo number_format($revenue, 2); ?></p>
         </div>
 
         <div class="stat-card orders">
             <h3>Total Orders</h3>
-            <p><?= $orders_count ?></p>
+            <p><?php echo $orders_count; ?></p>
         </div>
 
         <div class="stat-card customers">
             <h3>Total Customers</h3>
-            <p><?= $customers ?></p>
+            <p><?php echo $customers; ?></p>
         </div>
     </section>
 
-    <!-- Low Stock Items Table -->
     <section class="data-tables">
         <div class="data-table">
             <h2>⚠️ Low Stock Items (≤ 5)</h2>
@@ -86,9 +85,9 @@ $low_stock = $conn->query("SELECT id, name, stock FROM products WHERE stock <= 5
                     <?php if ($low_stock && $low_stock->num_rows > 0): ?>
                         <?php while ($item = $low_stock->fetch_assoc()): ?>
                             <tr>
-                                <td><?= htmlspecialchars($item['name']) ?></td>
-                                <td><?= intval($item['stock']) ?></td>
-                                <td><a href="edit_product.php?id=<?= intval($item['id']) ?>" class="btn-edit">Edit</a></td>
+                                <td><?php echo htmlspecialchars($item['name']); ?></td>
+                                <td><?php echo intval($item['stock']); ?></td>
+                                <td><a href="edit_product.php?id=<?php echo intval($item['id']); ?>" class="btn-edit">Edit</a></td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
@@ -102,7 +101,7 @@ $low_stock = $conn->query("SELECT id, name, stock FROM products WHERE stock <= 5
 </main>
 
 <footer class="admin-footer">
-    <p>© <?= date('Y') ?> SecureShop Admin Panel</p>
+    <p>© <?php echo date('Y'); ?> SecureShop Admin Panel</p>
 </footer>
 
 </body>

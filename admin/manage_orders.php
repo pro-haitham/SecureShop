@@ -1,10 +1,13 @@
 <?php
 session_start();
-include '../includes/db.php'; // BUG FIX: Corrected path
+include '../includes/db.php';
 if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header('Location: ../login.php');
     exit;
 }
+
+// Set the current page for active nav link
+$current_page = 'orders';
 
 $result = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
 ?>
@@ -17,16 +20,18 @@ $result = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
     <link rel="stylesheet" href="../assets/css/admin-style.css">
 </head>
 <body>
-    <header class="admin-header">
-        <h1>Admin Panel</h1>
-        <nav>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="add_product.php">Add Product</a>
-            <a href="manage_orders.php">Manage Orders</a>
-            <a href="../index.php" target="_blank">View Shop</a>
-            <a href="../logout.php">Logout</a>
-        </nav>
-    </header>
+
+<header class="admin-header">
+    <h1>🛍️ Admin Dashboard</h1>
+    <nav class="admin-nav">
+        <a href="dashboard.php" class="<?php echo ($current_page === 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
+        <a href="manage_categories.php" class="<?php echo ($current_page === 'categories') ? 'active' : ''; ?>">Categories</a>
+        <a href="add_product.php" class="<?php echo ($current_page === 'add_product') ? 'active' : ''; ?>">Add Product</a>
+        <a href="manage_orders.php" class="<?php echo ($current_page === 'orders') ? 'active' : ''; ?>">Manage Orders</a>
+        <a href="../index.php" target="_blank">View Shop</a>
+        <a href="../logout.php" class="logout">Logout</a>
+    </nav>
+</header>
 
     <main class="admin-container">
         <div class="data-table full-width">
@@ -46,7 +51,7 @@ $result = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
                     <?php if ($result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo $row['id']; ?></td>
+                            <td><a href="order_details.php?id=<?php echo $row['id']; ?>" title="View Details"><strong>#<?php echo $row['id']; ?></strong></a></td>
                             <td><?php echo htmlspecialchars($row['customer_name']); ?></td>
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
                             <td><?php echo htmlspecialchars($row['address']); ?></td>
@@ -55,11 +60,16 @@ $result = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
                         </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="6">No orders found.</td></tr>
+                        <tr><td colspan="6" class="no-data">No orders found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </main>
+
+<footer class="admin-footer">
+    <p>© <?php echo date('Y'); ?> SecureShop Admin Panel</p>
+</footer>
+
 </body>
 </html>
