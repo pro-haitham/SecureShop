@@ -17,7 +17,6 @@ $category = $stmt_cat->get_result()->fetch_assoc();
 $stmt_cat->close();
 
 if (!$category) {
-    // No category found
     header('Location: index.php');
     exit;
 }
@@ -28,12 +27,10 @@ $stmt_prod->bind_param("i", $category_id);
 $stmt_prod->execute();
 $result = $stmt_prod->get_result();
 
-// Use the new header
-include 'includes/header.php';
+// IMPROVEMENT: Set page title
+$page_title = htmlspecialchars($category['name']) . " - SecureShop";
+include 'includes/header.php'; // Use new header
 ?>
-<head>
-    <title><?php echo htmlspecialchars($category['name']); ?> - SecureShop</title>
-</head>
 
 <main class="container">
     <div class="category-header">
@@ -53,17 +50,18 @@ include 'includes/header.php';
                 
                 echo "
                 <div class='product-card'>
-                    <img src='assets/images/{$product_image}' alt='{$product_name}'>
-                    <h3>{$product_name}</h3>
-                    <p class='price'>$ {$product_price}</p>
-                    <p class='description'>" . substr($product_description, 0, 60) . "...</p>
+                    <a href='product.php?id={$product_id}' class='product-link-wrapper'>
+                        <img src='assets/images/{$product_image}' alt='{$product_name}'>
+                        <h3>{$product_name}</h3>
+                        <p class='price'>$ {$product_price}</p>
+                        <p class='description'>" . substr($product_description, 0, 60) . "...</p>
+                    </a>
                     
-                    <form action='add_to_cart.php' method='post'>
-                        <input type='hidden' name='product_id' value='{$product_id}'>
+                    <form class='ajax-add-to-cart-form'>
                         <input type='hidden' name='quantity' value='1'>
-                        <button type='submit' class='add-to-cart-btn'>Add to Cart</button>
+                        <button type='submit' class='add-to-cart-btn' data-id='{$product_id}'>Add to Cart</button>
                     </form>
-                    <a href='product.php?id={$product_id}' class='view-details-link'>View Details</a>
+                    
                 </div>
                 ";
             }
@@ -75,7 +73,4 @@ include 'includes/header.php';
     </div>
 </main>
 
-<?php
-// Use the new footer
-include 'includes/footer.php';
-?>
+<?php include 'includes/footer.php'; ?>

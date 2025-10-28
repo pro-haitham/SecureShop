@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 }
 
+// IMPROVEMENT: Set the dynamic page title
+$page_title = "Login - SecureShop";
 include 'includes/header.php'; // Use new header
 ?>
 
