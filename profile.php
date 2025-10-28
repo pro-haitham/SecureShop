@@ -12,12 +12,10 @@ $stmt->bind_param('i', $uid);
 $stmt->execute();
 $orders = $stmt->get_result();
 
+// IMPROVEMENT: Set the dynamic page title
+$page_title = "Your Profile - SecureShop";
 include 'includes/header.php'; // Use new header
 ?>
-<head>
-    <title>Your Profile - SecureShop</title>
-</head>
-
 <main class="container">
     <div class="profile-container">
         <h2>Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?>!</h2>
@@ -38,7 +36,7 @@ include 'includes/header.php'; // Use new header
                 <tbody>
                     <?php while ($o = $orders->fetch_assoc()): ?>
                     <tr>
-                        <td>#<?php echo $o['id']; ?></td>
+                        <td><a href="view_order.php?id=<?php echo $o['id']; ?>" title="View Details"><strong>#<?php echo $o['id']; ?></strong></a></td>
                         <td><?php echo date('F j, Y', strtotime($o['created_at'])); ?></td>
                         <td>$<?php echo number_format($o['total'], 2); ?></td>
                         <td>Completed</td> </tr>

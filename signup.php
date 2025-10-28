@@ -42,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// IMPROVEMENT: Set the dynamic page title
+$page_title = "Sign Up - SecureShop";
 include 'includes/header.php'; // Use new header
 ?>
 

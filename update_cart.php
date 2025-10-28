@@ -10,6 +10,12 @@ if ($data && isset($data['product_id'])) {
     }
 }
 
-echo json_encode(['success' => true]);
+// --- IMPROVEMENT: Calculate and return new cart count ---
+$cart_count = 0;
+foreach ($_SESSION['cart'] as $item) {
+    $cart_count += $item['quantity'];
+}
+
+echo json_encode(['success' => true, 'cart_count' => $cart_count]);
 exit();
 ?>
