@@ -2,11 +2,11 @@
 session_start();
 include '../includes/db.php';
 
-// // --- Access Control: Only Admins Allowed ---
-// if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-//     header('Location: ../login.php');
-//     exit;
-// }
+// --- Access Control: Only Admins Allowed ---
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
 
 // Set the current page for active nav link
 $current_page = 'add_product';

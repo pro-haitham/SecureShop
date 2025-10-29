@@ -1,11 +1,11 @@
 <?php
 session_start();
 include '../includes/db.php';
-// // Check if admin
-// if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-//     header('Location: ../login.php');
-//     exit;
-// }
+// Check if admin
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
 
 // Set the current page for active nav link
 $current_page = ''; // Not a main nav item

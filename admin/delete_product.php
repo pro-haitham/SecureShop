@@ -2,11 +2,11 @@
 session_start();
 include '../includes/db.php'; // Correct path to DB connection
 
-// // --- Access Control: Admin Only ---
-// if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
-//     header('Location: ../login.php');
-//     exit;
-// }
+// --- Access Control: Admin Only ---
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: ../login.php');
+    exit;
+}
 
 // --- Validate ID Parameter ---
 if (empty($_GET['id']) || !ctype_digit($_GET['id'])) {
