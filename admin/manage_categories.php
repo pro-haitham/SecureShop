@@ -6,6 +6,9 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 
+// IMPROVEMENT: Set the current page for active nav link
+$current_page = 'categories';
+
 $message = '';
 $error = '';
 $edit_category = null;
@@ -105,16 +108,18 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
     <link rel="stylesheet" href="../assets/css/admin-style.css">
 </head>
 <body>
-    <header class="admin-header">
-        <h1>Admin Panel</h1>
-        <nav>
-            <a href="dashboard.php">Dashboard</a>
-            <a href="manage_categories.php">Categories</a> <a href="add_product.php">Add Product</a>
-            <a href="manage_orders.php">Manage Orders</a>
-            <a href="../index.php" target="_blank">View Shop</a>
-            <a href="../logout.php">Logout</a>
-        </nav>
-    </header>
+    
+<header class="admin-header">
+    <h1>🛍️ Admin Dashboard</h1>
+    <nav class="admin-nav">
+        <a href="dashboard.php" class="<?php echo ($current_page === 'dashboard') ? 'active' : ''; ?>">Dashboard</a>
+        <a href="manage_categories.php" class="<?php echo ($current_page === 'categories') ? 'active' : ''; ?>">Categories</a>
+        <a href="add_product.php" class="<?php echo ($current_page === 'add_product') ? 'active' : ''; ?>">Add Product</a>
+        <a href="manage_orders.php" class="<?php echo ($current_page === 'orders') ? 'active' : ''; ?>">Manage Orders</a>
+        <a href="../index.php" target="_blank">View Shop</a>
+        <a href="../logout.php" class="logout">Logout</a>
+    </nav>
+</header>
 
     <main class="admin-container admin-grid">
         <div class="form-container-admin">
@@ -140,8 +145,8 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
                     <input type="hidden" name="current_image" value="<?php echo htmlspecialchars($edit_category['image']); ?>">
                 <?php endif; ?>
 
-                <label for="image">Image</label>
-                <input type="file" id="image" name="image">
+                <label for="image">Image (optional)</label>
+                <input type="file" id="image" name="image" accept=".jpg,.jpeg,.png,.gif">
 
                 <button type="submit" class="btn-submit"><?php echo $edit_category ? 'Update Category' : 'Add Category'; ?></button>
                 <?php if ($edit_category): ?>
@@ -175,11 +180,16 @@ $categories = $conn->query("SELECT * FROM categories ORDER BY name ASC");
                         </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr><td colspan="4">No categories found.</td></tr>
+                        <tr><td colspan="4" class="no-data">No categories found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </main>
+
+<footer class="admin-footer">
+    <p>© <?php echo date('Y'); ?> SecureShop Admin Panel</p>
+</footer>
+
 </body>
 </html>

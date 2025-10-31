@@ -52,10 +52,15 @@ $result = $conn->query("SELECT * FROM orders ORDER BY created_at DESC");
                         <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><a href="order_details.php?id=<?php echo $row['id']; ?>" title="View Details"><strong>#<?php echo $row['id']; ?></strong></a></td>
+                            
                             <td><?php echo htmlspecialchars($row['customer_name']); ?></td>
+
                             <td><?php echo htmlspecialchars($row['email']); ?></td>
+
                             <td><?php echo htmlspecialchars($row['address']); ?></td>
+
                             <td>$<?php echo number_format($row['total'], 2); ?></td>
+
                             <td><?php echo date('Y-m-d H:i', strtotime($row['created_at'])); ?></td>
                         </tr>
                         <?php endwhile; ?>

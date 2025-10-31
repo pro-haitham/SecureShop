@@ -133,7 +133,7 @@ body {
 
 /* --- IMPROVEMENT: Order ID link style --- */
 .data-table td a {
-    color: #00b894;
+    color: #0093b8;
     font-weight: bold;
     text-decoration: none;
 }
@@ -143,8 +143,8 @@ body {
 
 .btn-edit {
     text-decoration: none;
-    background: #00b894;
-    color: white;
+    background: #0093b8;
+    color: rgb(255, 253, 253);
     padding: 0.5rem 1rem;
     border-radius: 5px;
     font-size: 0.9rem;
@@ -152,7 +152,7 @@ body {
 }
 
 .btn-edit:hover {
-    background: #019870;
+    background: #0093b8;
 }
 
 /*
@@ -353,4 +353,29 @@ NEW STYLES (Appended)
     font-weight: bold;
     color: #00b894;
     margin-top: 1rem;
+}
+
+/*
+========================================
+ADMIN TABLE IMPROVEMENTS
+========================================
+*/
+
+.data-table.full-width td {
+    /* Allow long text to wrap to the next line */
+    white-space: normal;
+    word-wrap: break-word;
+    
+    /* Set a reasonable max-width for the address column */
+    /* You may need to adjust this */
+    max-width: 300px; 
+}
+
+.data-table.full-width td:nth-child(4), /* Address column */
+.data-table.full-width td:nth-child(2), /* Customer column */
+.data-table.full-width td:nth-child(3) { /* Email column */
+    /* This will truncate text with '...' if it's too long */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
